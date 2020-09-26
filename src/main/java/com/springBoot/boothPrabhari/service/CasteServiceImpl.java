@@ -20,26 +20,22 @@ import com.springBoot.boothPrabhari.entity.CasteEntity;
 public class CasteServiceImpl implements CasteService {
 
 	@Override
-	public List<CasteEntity> getCasteListByReligionCode(String religionCode) {
+	public List<CasteEntity> getCasteListByReligionCode(String religionCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("casteList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("religionCode", religionCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("religionCode", religionCode).get().get();
 		List<CasteEntity> casteList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			CasteEntity casteEntity = new CasteEntity();
 			casteEntity.setId(document.getId().toString());
 			casteEntity.setReligionCode(String.valueOf(document.getData().get("religionCode")));
 			casteEntity.setCasteCode(String.valueOf(document.getData().get("casteCode")));
 			casteEntity.setCasteName(String.valueOf(document.getData().get("casteName")));
 			casteList.add(casteEntity);
-		}
+		});
 		return casteList;
 	}
 
@@ -57,10 +53,8 @@ public class CasteServiceImpl implements CasteService {
 	@Override
 	public Boolean updateCasteDataToFireBase(CasteEntity entity) {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		dbFirestore.collection("casteList").document(entity.getId()).update(
-				"casteCode", entity.getCasteCode(), 
-				"casteName", entity.getCasteName(), 
-				"religionCode", entity.getReligionCode());
+		dbFirestore.collection("casteList").document(entity.getId()).update("casteCode", entity.getCasteCode(),
+				"casteName", entity.getCasteName(), "religionCode", entity.getReligionCode());
 		return true;
 	}
 

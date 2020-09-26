@@ -21,26 +21,22 @@ import com.springBoot.boothPrabhari.entity.LocalbodyEntity;
 public class LocalbodyServiceImpl implements LocalbodyService {
 
 	@Override
-	public List<LocalbodyEntity> getLocalbodyListByDistrictCode(String districtCode) {
+	public List<LocalbodyEntity> getLocalbodyListByDistrictCode(String districtCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("localBodyList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
 		List<LocalbodyEntity> localbodyList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			LocalbodyEntity localbodyEntity = new LocalbodyEntity();
 			localbodyEntity.setId(document.getId().toString());
 			localbodyEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
 			localbodyEntity.setLocalBodyCode(String.valueOf(document.getData().get("localBodyCode")));
 			localbodyEntity.setLocalBodyName(String.valueOf(document.getData().get("localBodyName")));
 			localbodyList.add(localbodyEntity);
-		}
+		});
 		return localbodyList;
 	}
 
@@ -49,7 +45,8 @@ public class LocalbodyServiceImpl implements LocalbodyService {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		Map<String, Object> localbodyDocData = new HashMap<>();
 		localbodyDocData.put("districtCode", localbodyEntity.getDistrictCode());
-		localbodyDocData.put("localBodyCode", localbodyEntity.getDistrictCode().concat(localbodyEntity.getLocalBodyCode()));
+		localbodyDocData.put("localBodyCode",
+				localbodyEntity.getDistrictCode().concat(localbodyEntity.getLocalBodyCode()));
 		localbodyDocData.put("localBodyName", localbodyEntity.getLocalBodyName());
 		dbFirestore.collection("localBodyList").document().set(localbodyDocData);
 		return true;
@@ -58,10 +55,9 @@ public class LocalbodyServiceImpl implements LocalbodyService {
 	@Override
 	public Boolean updateLocalbodyDataToFireBase(LocalbodyEntity localbodyEntity) {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		dbFirestore.collection("localBodyList").document(localbodyEntity.getId()).update(
-				"districtCode", localbodyEntity.getDistrictCode(), 
-				"localBodyCode", localbodyEntity.getLocalBodyCode(), 
-				"localBodyName", localbodyEntity.getLocalBodyName());
+		dbFirestore.collection("localBodyList").document(localbodyEntity.getId()).update("districtCode",
+				localbodyEntity.getDistrictCode(), "localBodyCode", localbodyEntity.getLocalBodyCode(), "localBodyName",
+				localbodyEntity.getLocalBodyName());
 		return true;
 	}
 
@@ -75,26 +71,22 @@ public class LocalbodyServiceImpl implements LocalbodyService {
 	}
 
 	@Override
-	public List<DistrictEntity> getDistrictListFromFireBase() {
+	public List<DistrictEntity> getDistrictListFromFireBase() throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("districtList");
 		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		snapshot = translations.get().get();
 		List<DistrictEntity> districtList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			DistrictEntity districtEntity = new DistrictEntity();
 			districtEntity.setId(document.getId().toString());
 			districtEntity.setStateCode(String.valueOf(document.getData().get("stateCode")));
 			districtEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
 			districtEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
 			districtList.add(districtEntity);
-		}
+		});
 		return districtList;
 	}
 

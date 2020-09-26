@@ -27,19 +27,14 @@ import com.springBoot.boothPrabhari.entity.VoterEntity;
 public class VoterServiceImpl implements VoterService {
 
 	@Override
-	public List<VoterEntity> getVotersList(String pollingStationCode) {
+	public List<VoterEntity> getVotersList(String pollingStationCode) throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("votersList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("boothCode", pollingStationCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("boothCode", pollingStationCode).get().get();
 		List<VoterEntity> voterEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			VoterEntity voterEntity = new VoterEntity();
 			voterEntity.setId(document.getId().toString());
 			voterEntity.setPollingStationCode(String.valueOf(document.getData().get("boothCode")));
@@ -52,7 +47,7 @@ public class VoterServiceImpl implements VoterService {
 			voterEntity.setAge(Integer.valueOf(document.getData().get("age").toString()));
 			voterEntity.setIdCardNo(String.valueOf(document.getData().get("idCardNo")));
 			voterEntityList.add(voterEntity);
-		}
+		});
 		return voterEntityList;
 	}
 
@@ -133,7 +128,9 @@ public class VoterServiceImpl implements VoterService {
 					age = genderAgeList[1].trim();
 				}
 				voterEntity.setGender(gender);
-				voterEntity.setAge(Integer.valueOf(age));
+				if (!age.isEmpty()) {
+					voterEntity.setAge(Integer.valueOf(age));
+				}
 				voterEntity.setIdCardNo(votersListSheet.getCellAt(6, index).getValue().toString().trim());
 				votersList.add(voterEntity);
 			}

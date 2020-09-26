@@ -18,29 +18,26 @@ import com.springBoot.boothPrabhari.entity.CandidateEntity;
 public class CandidateServiceImpl implements CandidateService {
 
 	@Override
-	public List<CandidateEntity> getCandidateList(String pollingStationCode, String electionBody) {
+	public List<CandidateEntity> getCandidateList(String pollingStationCode, String electionBody)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("candidateList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("boothCode", pollingStationCode).whereEqualTo("electionBody", electionBody).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("boothCode", pollingStationCode)
+				.whereEqualTo("electionBody", electionBody).get().get();
 		List<CandidateEntity> candidateEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			CandidateEntity candidateEntity = new CandidateEntity();
 			candidateEntity.setId(document.getId().toString());
 			candidateEntity.setPollingStationCode(String.valueOf(document.getData().get("boothCode")));
 			candidateEntity.setCandidateCode(String.valueOf(document.getData().get("candidateCode")));
 			candidateEntity.setCandidateName(String.valueOf(document.getData().get("candidateName")));
 			candidateEntity.setCandidateColor(String.valueOf(document.getData().get("candidateColor")));
-			candidateEntity.setPartyCode(String.valueOf(document.getData().get("partyCode")));
+			candidateEntity.setPartyCode(String.valueOf("[" + document.getData().get("partyCode") + "]"));
 			candidateEntity.setElectionBody(String.valueOf(document.getData().get("electionBody")));
 			candidateEntityList.add(candidateEntity);
-		}
+		});
 		return candidateEntityList;
 	}
 
@@ -49,10 +46,11 @@ public class CandidateServiceImpl implements CandidateService {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		Map<String, Object> candidateDocData = new HashMap<>();
 		candidateDocData.put("boothCode", candidateEntity.getPollingStationCode());
-		candidateDocData.put("candidateCode", candidateEntity.getPollingStationCode().concat(candidateEntity.getCandidateCode()));
+		candidateDocData.put("candidateCode",
+				candidateEntity.getPollingStationCode().concat(candidateEntity.getCandidateCode()));
 		candidateDocData.put("candidateName", candidateEntity.getCandidateName());
 		candidateDocData.put("candidateColor", candidateEntity.getCandidateColor());
-		candidateDocData.put("partyCode", "[" + candidateEntity.getPartyCode() + "]");
+		candidateDocData.put("partyCode", candidateEntity.getPartyCode());
 		candidateDocData.put("electionBody", candidateEntity.getElectionBody());
 		dbFirestore.collection("candidateList").document().set(candidateDocData);
 		return true;
@@ -61,13 +59,11 @@ public class CandidateServiceImpl implements CandidateService {
 	@Override
 	public Boolean updateCandidateDataToFireBase(CandidateEntity candidateEntity) {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		dbFirestore.collection("candidateList").document(candidateEntity.getId()).update(
-				"boothCode", candidateEntity.getPollingStationCode(), 
-				"candidateCode", candidateEntity.getCandidateCode(), 
-				"candidateName", candidateEntity.getCandidateName(),
-				"candidateColor", candidateEntity.getCandidateColor(),
-				"partyCode", candidateEntity.getPartyCode(),
-				"electionBody", candidateEntity.getElectionBody());
+		dbFirestore.collection("candidateList").document(candidateEntity.getId()).update("boothCode",
+				candidateEntity.getPollingStationCode(), "candidateCode", candidateEntity.getCandidateCode(),
+				"candidateName", candidateEntity.getCandidateName(), "candidateColor",
+				candidateEntity.getCandidateColor(), "partyCode", candidateEntity.getPartyCode(), "electionBody",
+				candidateEntity.getElectionBody());
 		return true;
 	}
 

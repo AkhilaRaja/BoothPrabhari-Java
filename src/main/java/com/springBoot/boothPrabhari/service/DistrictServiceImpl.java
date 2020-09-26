@@ -20,27 +20,23 @@ import com.springBoot.boothPrabhari.entity.DistrictEntity;
 public class DistrictServiceImpl implements DistrictService {
 
 	@Override
-	public List<DistrictEntity> getDistrictListByStateCode(String stateCode) {
+	public List<DistrictEntity> getDistrictListByStateCode(String stateCode)
+			throws InterruptedException, ExecutionException {
 
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("districtList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("stateCode", stateCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("stateCode", stateCode).get().get();
 		List<DistrictEntity> districtList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			DistrictEntity districtEntity = new DistrictEntity();
 			districtEntity.setId(document.getId().toString());
 			districtEntity.setStateCode(String.valueOf(document.getData().get("stateCode")));
 			districtEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
 			districtEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
 			districtList.add(districtEntity);
-		}
+		});
 		return districtList;
 	}
 
@@ -64,9 +60,8 @@ public class DistrictServiceImpl implements DistrictService {
 		districtDocData.put("districtName", entity.getDistrictName());
 		districtDocData.put("stateCode", entity.getStateCode());
 		ApiFuture<WriteResult> future = dbFirestore.collection("districtList").document(entity.getId()).update(
-				"districtCode", entity.getDistrictCode(), 
-				"districtName", entity.getDistrictName(), 
-				"stateCode", entity.getStateCode());
+				"districtCode", entity.getDistrictCode(), "districtName", entity.getDistrictName(), "stateCode",
+				entity.getStateCode());
 		return true;
 	}
 

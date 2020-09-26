@@ -1,6 +1,7 @@
 package com.springBoot.boothPrabhari.controller;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,23 +22,24 @@ public class CandidateController {
 	private CandidateService candidateService;
 
 	@GetMapping("/getCandidateList")
-	public List<CandidateEntity> getCandidateList(@RequestParam String pollingStationCode, @RequestParam String electionBodyValue) {
+	public List<CandidateEntity> getCandidateList(@RequestParam String pollingStationCode,
+			@RequestParam String electionBodyValue) throws InterruptedException, ExecutionException {
 		return candidateService.getCandidateList(pollingStationCode, electionBodyValue);
 	}
-	
+
 	@PostMapping("/saveCandidateData")
 	public Boolean saveCandidateData(@RequestBody CandidateEntity candidateEntity) {
 		return candidateService.saveCandidateDataToFireBase(candidateEntity);
 	}
-	
+
 	@PostMapping("/updateCandidateData")
 	public Boolean updateCandidateData(@RequestBody CandidateEntity candidateEntity) {
 		return candidateService.updateCandidateDataToFireBase(candidateEntity);
 	}
-	
+
 	@PostMapping("/deleteCandidateData")
 	public Boolean deleteCandidateData(@RequestBody List<String> idList) {
 		return candidateService.deleteCandidateDataFromFireBase(idList);
 	}
-	
+
 }

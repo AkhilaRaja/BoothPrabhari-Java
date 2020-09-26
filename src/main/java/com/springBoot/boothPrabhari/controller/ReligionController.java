@@ -1,6 +1,7 @@
 package com.springBoot.boothPrabhari.controller;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,25 +17,25 @@ import com.springBoot.boothPrabhari.service.ReligionService;
 @RestController
 @RequestMapping("/religion")
 public class ReligionController {
-	
+
 	@Autowired
 	ReligionService religionService;
-	
+
 	@GetMapping("/getReligionList")
-	public List<ReligionEntity> getReligionList(){
+	public List<ReligionEntity> getReligionList() throws InterruptedException, ExecutionException {
 		return religionService.getAllReligionList();
 	}
-	
+
 	@PostMapping("/saveReligionData")
 	public Boolean saveReligionData(@RequestBody ReligionEntity religionEntity) {
 		return religionService.saveReligionDataToFireBase(religionEntity);
 	}
-	
+
 	@PostMapping("/updateReligionData")
 	public Boolean updateReligionData(@RequestBody ReligionEntity religionEntity) {
 		return religionService.updateReligionDataToFireBase(religionEntity);
 	}
-	
+
 	@PostMapping("/deleteReligionData")
 	public Boolean deleteReligionData(@RequestBody List<String> idList) {
 		return religionService.deleteReligionDataFromFireBase(idList);

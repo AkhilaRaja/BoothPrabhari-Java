@@ -3,10 +3,12 @@ package com.springBoot.boothPrabhari.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
@@ -23,19 +25,15 @@ import com.springBoot.boothPrabhari.entity.PollingstationEntity;
 public class PollingstationServiceImpl implements PollingstationService {
 
 	@Override
-	public List<PollingstationEntity> getPollingStationListByWardCode(String wardCode) {
+	public List<PollingstationEntity> getPollingStationListByWardCode(String wardCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("pollingStationList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("wardCode", wardCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("wardCode", wardCode).get().get();
 		List<PollingstationEntity> pollingstationEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			PollingstationEntity pollingstationEntity = new PollingstationEntity();
 			pollingstationEntity.setId(document.getId().toString());
 			pollingstationEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
@@ -48,24 +46,20 @@ public class PollingstationServiceImpl implements PollingstationService {
 			pollingstationEntity.setPollingStationName(String.valueOf(document.getData().get("pollingStationName")));
 			pollingstationEntity.setStatus((boolean) document.getData().get("status"));
 			pollingstationEntityList.add(pollingstationEntity);
-		}
+		});
 		return pollingstationEntityList;
 	}
 
 	@Override
-	public List<PollingstationEntity> getPollingStationListByLocalBodyCode(String localBodyCode) {
+	public List<PollingstationEntity> getPollingStationListByLocalBodyCode(String localBodyCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("pollingStationList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("localBodyCode", localBodyCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("localBodyCode", localBodyCode).get().get();
 		List<PollingstationEntity> pollingstationEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			PollingstationEntity pollingstationEntity = new PollingstationEntity();
 			pollingstationEntity.setId(document.getId().toString());
 			pollingstationEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
@@ -78,24 +72,20 @@ public class PollingstationServiceImpl implements PollingstationService {
 			pollingstationEntity.setPollingStationName(String.valueOf(document.getData().get("pollingStationName")));
 			pollingstationEntity.setStatus((boolean) document.getData().get("status"));
 			pollingstationEntityList.add(pollingstationEntity);
-		}
+		});
 		return pollingstationEntityList;
 	}
 
 	@Override
-	public List<PollingstationEntity> getPollingStationListByDistrictCode(String districtCode) {
+	public List<PollingstationEntity> getPollingStationListByDistrictCode(String districtCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("pollingStationList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
 		List<PollingstationEntity> pollingstationEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			PollingstationEntity pollingstationEntity = new PollingstationEntity();
 			pollingstationEntity.setId(document.getId().toString());
 			pollingstationEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
@@ -108,51 +98,33 @@ public class PollingstationServiceImpl implements PollingstationService {
 			pollingstationEntity.setPollingStationName(String.valueOf(document.getData().get("pollingStationName")));
 			pollingstationEntity.setStatus((boolean) document.getData().get("status"));
 			pollingstationEntityList.add(pollingstationEntity);
-		}
+		});
 		return pollingstationEntityList;
 	}
 
 	@Override
-	public Boolean savePollingStationDataToFireBase(PollingstationEntity pollingstationEntity) {
+	public Boolean savePollingStationDataToFireBase(PollingstationEntity pollingstationEntity)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = null;
 		QuerySnapshot snapshot = null;
-		List<QueryDocumentSnapshot> documents =null;
-		
+		QueryDocumentSnapshot document = null;
+
 		translations = dbFirestore.collection("wardList");
-		try {
-			snapshot = translations.whereEqualTo("wardCode", pollingstationEntity.getWardCode()).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
-		documents = Lists.newArrayList(snapshot.getDocuments());
-		for (DocumentSnapshot document : documents) {
-			pollingstationEntity.setWardName(String.valueOf(document.getData().get("wardName")));
-		}
-		
+		snapshot = translations.whereEqualTo("wardCode", pollingstationEntity.getWardCode()).get().get();
+		document = snapshot.getDocuments().get(0);
+		pollingstationEntity.setWardName(String.valueOf(document.getData().get("wardName")));
+
 		translations = dbFirestore.collection("localBodyList");
-		try {
-			snapshot = translations.whereEqualTo("localBodyCode", pollingstationEntity.getLocalBodyCode()).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
-		documents = Lists.newArrayList(snapshot.getDocuments());
-		for (DocumentSnapshot document : documents) {
-			pollingstationEntity.setLocalBodyName(String.valueOf(document.getData().get("localBodyName")));
-		}
-		
+		snapshot = translations.whereEqualTo("localBodyCode", pollingstationEntity.getLocalBodyCode()).get().get();
+		document = snapshot.getDocuments().get(0);
+		pollingstationEntity.setLocalBodyName(String.valueOf(document.getData().get("localBodyName")));
+
 		translations = dbFirestore.collection("districtList");
-		try {
-			snapshot = translations.whereEqualTo("districtCode", pollingstationEntity.getDistrictCode()).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
-		documents = Lists.newArrayList(snapshot.getDocuments());
-		for (DocumentSnapshot document : documents) {
-			pollingstationEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
-		}
-		
-		
+		snapshot = translations.whereEqualTo("districtCode", pollingstationEntity.getDistrictCode()).get().get();
+		document = snapshot.getDocuments().get(0);
+		pollingstationEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
+
 		Map<String, Object> pollingStationDocData = new HashMap<>();
 		pollingStationDocData.put("districtCode", pollingstationEntity.getDistrictCode());
 		pollingStationDocData.put("districtName", pollingstationEntity.getDistrictName());
@@ -165,60 +137,78 @@ public class PollingstationServiceImpl implements PollingstationService {
 		pollingStationDocData.put("pollingStationName", pollingstationEntity.getPollingStationName());
 		pollingStationDocData.put("status", pollingstationEntity.isStatus());
 		dbFirestore.collection("pollingStationList").document().set(pollingStationDocData);
+
+		createCandidates(pollingstationEntity.getWardCode().concat(pollingstationEntity.getPollingStationCode()));
 		return true;
 	}
 
-	@Override
-	public Boolean updatePollingStationDataToFireBase(PollingstationEntity pollingstationEntity) {
+	// creates candidates for each political parties at panchayat, blockPanchayat,
+	// districtPanchayat
+	private void createCandidates(String pollingStationCode) {
+		List<Map<String, Object>> candidateDocDataList = new ArrayList<>();
+		List<String> electionBodyList = Arrays.asList("panchayat", "blockPanchayat", "districtPanchayat");
+		List<String> partyCodeList = Arrays.asList("NIL", "NDA", "UDF", "LDF");
+
+		electionBodyList.stream().forEach(electionBody -> {
+			AtomicInteger candidateId = new AtomicInteger(0);
+			partyCodeList.stream().forEach(partyCode -> {
+				Map<String, Object> candidateMap = new HashMap<>();
+				candidateMap.put("candidateName", "Not Decided");
+				if (partyCode == "NIL") {
+					candidateMap.put("candidateName", "Unpredictable");
+					candidateMap.put("candidateColor", "#BABCBD");
+				} else if (partyCode == "NDA") {
+					candidateMap.put("candidateColor", "#FF9200");
+				} else if (partyCode == "UDF") {
+					candidateMap.put("candidateColor", "#3498DB");
+				} else if (partyCode == "LDF") {
+					candidateMap.put("candidateColor", "#C70039");
+				}
+				candidateMap.put("partyCode", partyCode);
+				candidateMap.put("pollingStationCode", pollingStationCode);
+				candidateMap.put("electionBody", electionBody);
+				candidateMap.put("candidateCode", candidateId.incrementAndGet());
+				candidateDocDataList.add(candidateMap);
+			});
+		});
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		
+		candidateDocDataList.forEach(candidate -> {
+			dbFirestore.collection("candidateList").document().set(candidate);
+		});
+
+	}
+
+	@Override
+	public Boolean updatePollingStationDataToFireBase(PollingstationEntity pollingstationEntity)
+			throws InterruptedException, ExecutionException {
+		Firestore dbFirestore = FirestoreClient.getFirestore();
+
 		CollectionReference translations = null;
 		QuerySnapshot snapshot = null;
-		List<QueryDocumentSnapshot> documents =null;
-		
+		QueryDocumentSnapshot document = null;
+
 		translations = dbFirestore.collection("wardList");
-		try {
-			snapshot = translations.whereEqualTo("wardCode", pollingstationEntity.getWardCode()).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
-		documents = Lists.newArrayList(snapshot.getDocuments());
-		for (DocumentSnapshot document : documents) {
-			pollingstationEntity.setWardName(String.valueOf(document.getData().get("wardName")));
-		}
-		
+		snapshot = translations.whereEqualTo("wardCode", pollingstationEntity.getWardCode()).get().get();
+		document = snapshot.getDocuments().get(0);
+		pollingstationEntity.setWardName(String.valueOf(document.getData().get("wardName")));
+
 		translations = dbFirestore.collection("localBodyList");
-		try {
-			snapshot = translations.whereEqualTo("localBodyCode", pollingstationEntity.getLocalBodyCode()).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
-		documents = Lists.newArrayList(snapshot.getDocuments());
-		for (DocumentSnapshot document : documents) {
-			pollingstationEntity.setLocalBodyName(String.valueOf(document.getData().get("localBodyName")));
-		}
-		
+		snapshot = translations.whereEqualTo("localBodyCode", pollingstationEntity.getLocalBodyCode()).get().get();
+		document = snapshot.getDocuments().get(0);
+		pollingstationEntity.setLocalBodyName(String.valueOf(document.getData().get("localBodyName")));
+
 		translations = dbFirestore.collection("districtList");
-		try {
-			snapshot = translations.whereEqualTo("districtCode", pollingstationEntity.getDistrictCode()).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
-		documents = Lists.newArrayList(snapshot.getDocuments());
-		for (DocumentSnapshot document : documents) {
-			pollingstationEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
-		}
-		
+		snapshot = translations.whereEqualTo("districtCode", pollingstationEntity.getDistrictCode()).get().get();
+		document = snapshot.getDocuments().get(0);
+		pollingstationEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
+
 		dbFirestore.collection("pollingStationList").document(pollingstationEntity.getId()).update("districtCode",
-				pollingstationEntity.getDistrictCode(), 
-				"districtName", pollingstationEntity.getDistrictName(),
-				"localBodyCode", pollingstationEntity.getLocalBodyCode(), 
-				"localBodyName", pollingstationEntity.getLocalBodyName(), 
-				"wardCode", pollingstationEntity.getWardCode(), 
-				"wardName", pollingstationEntity.getWardName(), 
-				"pollingStationCode", pollingstationEntity.getPollingStationCode(),
-				"pollingStationName", pollingstationEntity.getPollingStationName(), 
-				"status", pollingstationEntity.isStatus());
+				pollingstationEntity.getDistrictCode(), "districtName", pollingstationEntity.getDistrictName(),
+				"localBodyCode", pollingstationEntity.getLocalBodyCode(), "localBodyName",
+				pollingstationEntity.getLocalBodyName(), "wardCode", pollingstationEntity.getWardCode(), "wardName",
+				pollingstationEntity.getWardName(), "pollingStationCode", pollingstationEntity.getPollingStationCode(),
+				"pollingStationName", pollingstationEntity.getPollingStationName(), "status",
+				pollingstationEntity.isStatus());
 		return true;
 	}
 

@@ -20,25 +20,19 @@ import com.springBoot.boothPrabhari.entity.ReligionEntity;
 public class ReligionServiceImpl implements ReligionService {
 
 	@Override
-	public List<ReligionEntity> getAllReligionList() {
+	public List<ReligionEntity> getAllReligionList() throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("religionList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.get().get();
 		List<ReligionEntity> religionList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
-
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			ReligionEntity religionEntity = new ReligionEntity();
 			religionEntity.setId(document.getId().toString());
 			religionEntity.setReligionCode(String.valueOf(document.getData().get("religionCode")));
 			religionEntity.setReligionName(String.valueOf(document.getData().get("religionName")));
 			religionList.add(religionEntity);
-		}
+		});
 		return religionList;
 	}
 
@@ -58,8 +52,7 @@ public class ReligionServiceImpl implements ReligionService {
 		Map<String, Object> religionDocData = new HashMap<>();
 		religionDocData.put("religionCode", entity.getReligionCode());
 		religionDocData.put("religionName", entity.getReligionName());
-		dbFirestore.collection("religionList").document(entity.getId()).update(
-				"religionCode", entity.getReligionCode(), 
+		dbFirestore.collection("religionList").document(entity.getId()).update("religionCode", entity.getReligionCode(),
 				"religionName", entity.getReligionName());
 		return true;
 	}

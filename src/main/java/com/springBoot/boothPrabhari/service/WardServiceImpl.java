@@ -20,19 +20,15 @@ import com.springBoot.boothPrabhari.entity.WardEntity;
 public class WardServiceImpl implements WardService {
 
 	@Override
-	public List<WardEntity> getWardListByLocalbodyCode(String localBodyCode) {
+	public List<WardEntity> getWardListByLocalbodyCode(String localBodyCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("wardList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("localBodyCode", localBodyCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("localBodyCode", localBodyCode).get().get();
 		List<WardEntity> wardEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			WardEntity wardEntity = new WardEntity();
 			wardEntity.setId(document.getId().toString());
 			wardEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
@@ -40,24 +36,20 @@ public class WardServiceImpl implements WardService {
 			wardEntity.setWardCode(String.valueOf(document.getData().get("wardCode")));
 			wardEntity.setWardName(String.valueOf(document.getData().get("wardName")));
 			wardEntityList.add(wardEntity);
-		}
+		});
 		return wardEntityList;
 	}
-	
+
 	@Override
-	public List<WardEntity> getWardListByDistrictCode(String districtCode) {
+	public List<WardEntity> getWardListByDistrictCode(String districtCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("wardList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
 		List<WardEntity> wardEntityList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			WardEntity wardEntity = new WardEntity();
 			wardEntity.setId(document.getId().toString());
 			wardEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
@@ -65,7 +57,7 @@ public class WardServiceImpl implements WardService {
 			wardEntity.setWardCode(String.valueOf(document.getData().get("wardCode")));
 			wardEntity.setWardName(String.valueOf(document.getData().get("wardName")));
 			wardEntityList.add(wardEntity);
-		}
+		});
 		return wardEntityList;
 	}
 
@@ -84,11 +76,9 @@ public class WardServiceImpl implements WardService {
 	@Override
 	public Boolean updateWardDataToFireBase(WardEntity wardEntity) {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
-		dbFirestore.collection("wardList").document(wardEntity.getId()).update(
-				"districtCode", wardEntity.getDistrictCode(), 
-				"localBodyCode", wardEntity.getLocalBodyCode(),
-				"wardCode", wardEntity.getWardCode(),
-				"wardName", wardEntity.getWardName());
+		dbFirestore.collection("wardList").document(wardEntity.getId()).update("districtCode",
+				wardEntity.getDistrictCode(), "localBodyCode", wardEntity.getLocalBodyCode(), "wardCode",
+				wardEntity.getWardCode(), "wardName", wardEntity.getWardName());
 		return true;
 	}
 
@@ -102,50 +92,41 @@ public class WardServiceImpl implements WardService {
 	}
 
 	@Override
-	public List<DistrictEntity> getDistrictListFromFireBase() {
+	public List<DistrictEntity> getDistrictListFromFireBase() throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("districtList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.get().get();
 		List<DistrictEntity> districtList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			DistrictEntity districtEntity = new DistrictEntity();
 			districtEntity.setId(document.getId().toString());
 			districtEntity.setStateCode(String.valueOf(document.getData().get("stateCode")));
 			districtEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
 			districtEntity.setDistrictName(String.valueOf(document.getData().get("districtName")));
 			districtList.add(districtEntity);
-		}
+		});
 		return districtList;
 	}
 
 	@Override
-	public List<LocalbodyEntity> getLocalbodyListFromFireBase(String districtCode) {
+	public List<LocalbodyEntity> getLocalbodyListFromFireBase(String districtCode)
+			throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		CollectionReference translations = dbFirestore.collection("localBodyList");
-		QuerySnapshot snapshot = null;
-		try {
-			snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
-		} catch (InterruptedException | ExecutionException e) {
-			System.out.println(e);
-		}
+		QuerySnapshot snapshot = translations.whereEqualTo("districtCode", districtCode).get().get();
 		List<LocalbodyEntity> localBodyList = new ArrayList<>();
 		List<QueryDocumentSnapshot> documents = Lists.newArrayList(snapshot.getDocuments());
 
-		for (DocumentSnapshot document : documents) {
+		documents.stream().forEach(document -> {
 			LocalbodyEntity localbodyEntity = new LocalbodyEntity();
 			localbodyEntity.setId(document.getId().toString());
 			localbodyEntity.setDistrictCode(String.valueOf(document.getData().get("districtCode")));
 			localbodyEntity.setLocalBodyCode(String.valueOf(document.getData().get("localBodyCode")));
 			localbodyEntity.setLocalBodyName(String.valueOf(document.getData().get("localBodyName")));
 			localBodyList.add(localbodyEntity);
-		}
+		});
 		return localBodyList;
 	}
 

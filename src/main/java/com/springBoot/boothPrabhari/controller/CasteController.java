@@ -1,6 +1,7 @@
 package com.springBoot.boothPrabhari.controller;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,20 +22,21 @@ public class CasteController {
 	private CasteService casteService;
 
 	@GetMapping("/getCasteList")
-	public List<CasteEntity> getCasteList(@RequestParam String religionCode) {
+	public List<CasteEntity> getCasteList(@RequestParam String religionCode)
+			throws InterruptedException, ExecutionException {
 		return casteService.getCasteListByReligionCode(religionCode);
 	}
-	
+
 	@PostMapping("/saveCasteData")
 	public Boolean saveCasteData(@RequestBody CasteEntity casteEntity) {
 		return casteService.saveCasteDataToFireBase(casteEntity);
 	}
-	
+
 	@PostMapping("/updateCasteData")
 	public Boolean updateCasteData(@RequestBody CasteEntity casteEntity) {
 		return casteService.updateCasteDataToFireBase(casteEntity);
 	}
-	
+
 	@PostMapping("/deleteCasteData")
 	public Boolean deleteCasteData(@RequestBody List<String> idList) {
 		return casteService.deleteCasteDataFromFireBase(idList);
