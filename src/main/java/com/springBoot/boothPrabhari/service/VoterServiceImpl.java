@@ -103,11 +103,20 @@ public class VoterServiceImpl implements VoterService {
 		File votersListFile = new File(
 				"C:\\Users\\rajan\\AngularProjects\\BoothPrabhariDocuments\\VotersList\\" + filePath);
 		List<VoterEntity> votersList = new ArrayList<>();
-
+		List<Integer> removedVoterSerialNoList = new ArrayList<>();
 		try {
 			Sheet votersListSheet = SpreadSheet.createFromFile(votersListFile).getSheet(0);
-			int votersCount = Integer.valueOf(votersListSheet.getCellAt(3, 0).getValue().toString().trim());
 			String dashedBoothCode = votersListSheet.getCellAt(1, 0).getValue().toString().trim();
+			int votersCount = Integer.valueOf(votersListSheet.getCellAt(3, 0).getValue().toString().trim());
+			int removedVotersCount = Integer.valueOf(votersListSheet.getCellAt(5, 0).getValue().toString().trim());
+			if (removedVotersCount != 0) {
+				Sheet removedVotersListSheet = SpreadSheet.createFromFile(votersListFile).getSheet(1);
+				for (int index = 2; index <= removedVotersCount + 1; index++) {
+					removedVoterSerialNoList.add(
+							Integer.valueOf(removedVotersListSheet.getCellAt(0, index).getValue().toString().trim()));
+				}
+			}
+
 			String[] boothCodeArray = dashedBoothCode.split("_");
 			String pollingStationCode = boothCodeArray[0] + boothCodeArray[1] + boothCodeArray[2] + boothCodeArray[3];
 			for (int index = 2; index <= votersCount + 1; index++) {
@@ -132,7 +141,9 @@ public class VoterServiceImpl implements VoterService {
 					voterEntity.setAge(Integer.valueOf(age));
 				}
 				voterEntity.setIdCardNo(votersListSheet.getCellAt(6, index).getValue().toString().trim());
+				if(!removedVoterSerialNoList.contains(voterEntity.getSerialNo())) {
 				votersList.add(voterEntity);
+			}
 			}
 			Firestore dbFirestore = FirestoreClient.getFirestore();
 			votersList.stream().forEach(voter -> {
