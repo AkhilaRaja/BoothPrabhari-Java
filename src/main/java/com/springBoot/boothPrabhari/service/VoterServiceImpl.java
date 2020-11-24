@@ -26,6 +26,8 @@ import com.springBoot.boothPrabhari.entity.VoterEntity;
 
 public class VoterServiceImpl implements VoterService {
 
+	private static final String VOTERS_LIST_PATH = "E:\\BoothPrabhariWeb\\VotersList\\";
+
 	@Override
 	public List<VoterEntity> getVotersList(String pollingStationCode) throws InterruptedException, ExecutionException {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
@@ -72,6 +74,7 @@ public class VoterServiceImpl implements VoterService {
 		voterDocData.put("dead", false);
 		voterDocData.put("voted", false);
 		voterDocData.put("outOfStation", false);
+		voterDocData.put("outOfWard", false);
 		voterDocData.put("phoneNo", "");
 		dbFirestore.collection("votersList").document().set(voterDocData);
 		return true;
@@ -100,8 +103,9 @@ public class VoterServiceImpl implements VoterService {
 	@Override
 	public Boolean importVotersDataToFireBase(String filePath) {
 
-		File votersListFile = new File(
-				"C:\\Users\\rajan\\AngularProjects\\BoothPrabhariDocuments\\VotersList\\" + filePath);
+		File votersListFile = new File(VOTERS_LIST_PATH + filePath);
+//		File votersListFile = new File(
+//				"C:\\Users\\rajan\\AngularProjects\\BoothPrabhariDocuments\\VotersList\\" + filePath);
 		List<VoterEntity> votersList = new ArrayList<>();
 		List<Integer> removedVoterSerialNoList = new ArrayList<>();
 		try {
@@ -141,9 +145,9 @@ public class VoterServiceImpl implements VoterService {
 					voterEntity.setAge(Integer.valueOf(age));
 				}
 				voterEntity.setIdCardNo(votersListSheet.getCellAt(6, index).getValue().toString().trim());
-				if(!removedVoterSerialNoList.contains(voterEntity.getSerialNo())) {
-				votersList.add(voterEntity);
-			}
+				if (!removedVoterSerialNoList.contains(voterEntity.getSerialNo())) {
+					votersList.add(voterEntity);
+				}
 			}
 			Firestore dbFirestore = FirestoreClient.getFirestore();
 			votersList.stream().forEach(voter -> {
@@ -165,6 +169,7 @@ public class VoterServiceImpl implements VoterService {
 				votersDocData.put("dead", false);
 				votersDocData.put("voted", false);
 				votersDocData.put("outOfStation", false);
+				votersDocData.put("outOfWard", false);
 				votersDocData.put("phoneNo", "");
 				dbFirestore.collection("votersList").document().set(votersDocData);
 			});

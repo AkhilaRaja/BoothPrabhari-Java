@@ -165,9 +165,9 @@ public class PollingstationServiceImpl implements PollingstationService {
 					candidateMap.put("candidateColor", "#C70039");
 				}
 				candidateMap.put("partyCode", partyCode);
-				candidateMap.put("pollingStationCode", pollingStationCode);
+				candidateMap.put("boothCode", pollingStationCode);
 				candidateMap.put("electionBody", electionBody);
-				candidateMap.put("candidateCode", candidateId.incrementAndGet());
+				candidateMap.put("candidateCode", String.valueOf(candidateId.incrementAndGet()));
 				candidateDocDataList.add(candidateMap);
 			});
 		});
@@ -209,6 +209,8 @@ public class PollingstationServiceImpl implements PollingstationService {
 				pollingstationEntity.getWardName(), "pollingStationCode", pollingstationEntity.getPollingStationCode(),
 				"pollingStationName", pollingstationEntity.getPollingStationName(), "status",
 				pollingstationEntity.isStatus());
+		// Need to Remove
+		// createCandidates(pollingstationEntity.getPollingStationCode());
 		return true;
 	}
 

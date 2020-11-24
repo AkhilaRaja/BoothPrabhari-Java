@@ -46,8 +46,7 @@ public class CandidateServiceImpl implements CandidateService {
 		Firestore dbFirestore = FirestoreClient.getFirestore();
 		Map<String, Object> candidateDocData = new HashMap<>();
 		candidateDocData.put("boothCode", candidateEntity.getPollingStationCode());
-		candidateDocData.put("candidateCode",
-				candidateEntity.getPollingStationCode().concat(candidateEntity.getCandidateCode()));
+		candidateDocData.put("candidateCode", candidateEntity.getCandidateCode());
 		candidateDocData.put("candidateName", candidateEntity.getCandidateName());
 		candidateDocData.put("candidateColor", candidateEntity.getCandidateColor());
 		candidateDocData.put("partyCode", candidateEntity.getPartyCode());
